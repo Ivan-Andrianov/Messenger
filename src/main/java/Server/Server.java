@@ -28,11 +28,21 @@ public class Server {
         try(ServerSocket serverSocket = new ServerSocket(16002,20)){
             while (true) {
                 Socket connection = serverSocket.accept();
-
+                ServerConnection serverConnection = new ServerConnection(connection);
+                this.addConnection(serverConnection);
+                serverConnection.start();
             }
 
         }catch (IOException e){
             System.err.println("Ошибка создания серверного сокета: "+e.getMessage());
         }
+    }
+
+    public void addConnection(ServerConnection connection) {
+        ServerConnectionList.add(connection);
+    }
+
+    public void deleteConnection(ServerConnection connection){
+        ServerConnectionList.remove(connection);
     }
 }
