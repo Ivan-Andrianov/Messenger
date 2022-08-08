@@ -1,7 +1,12 @@
 package Server;
 
 
+import org.json.simple.JSONObject;
+
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,6 +15,10 @@ import java.util.List;
 
 public class Server {
 
+
+    /**
+     * Переменная, хранящая список соединений с клиентами, которые находятся онлайн.
+     */
     private List<ServerConnection> ServerConnectionList;
 
     private Server(){
@@ -24,6 +33,9 @@ public class Server {
         return server;
     }
 
+    /**
+     * Метод start() запускает сервер.
+     */
     public void start(){
         try(ServerSocket serverSocket = new ServerSocket(16002,20)){
             while (true) {
@@ -44,5 +56,20 @@ public class Server {
 
     public void deleteConnection(ServerConnection connection){
         ServerConnectionList.remove(connection);
+    }
+
+    /**
+     * Метод send() рассылает сообщение всем членам беседы.
+     */
+    public void send(String text) {
+        for (ServerConnection connection:ServerConnectionList){
+            try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.connection.getOutputStream()))) {
+                JSONObject response = new JSONObject();
+                response.put("text",text);
+                writer.write(response.toJSONString());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
